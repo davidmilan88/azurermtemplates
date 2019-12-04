@@ -1,0 +1,94 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_ABTFSTST01_name": {
+      "type": "String"
+    },
+    "networkInterfaces_ABTFSTST01d3726728_aa77_4ba2_94ba_d95a3e272538_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('virtualMachines_ABTFSTST01_name')]",
+      "location": "westeurope",
+      "tags": {
+        "NoAutoShutdown": "20190913",
+        "AutoStart": "20191215"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B4MS"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[concat(parameters('virtualMachines_ABTFSTST01_name'), '-OsDisk')]",
+            "createOption": "Attach",
+            "vhd": {
+              "uri": "[concat('https://abessevhds.blob.core.windows.net/abtfstst01/', parameters('virtualMachines_ABTFSTST01_name'), '-OsDisk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 150
+          },
+          "dataDisks": [
+            {
+              "lun": 1,
+              "name": "[concat(parameters('virtualMachines_ABTFSTST01_name'), '-DataDisk01')]",
+              "createOption": "Attach",
+              "vhd": {
+                "uri": "[concat('https://abessevhds.blob.core.windows.net/abtfstst01/', parameters('virtualMachines_ABTFSTST01_name'), '-DataDisk01.vhd')]"
+              },
+              "caching": "ReadOnly",
+              "diskSizeGB": 150,
+              "toBeDetached": false
+            },
+            {
+              "lun": 2,
+              "name": "[concat(parameters('virtualMachines_ABTFSTST01_name'), '-DataDisk02')]",
+              "createOption": "Attach",
+              "vhd": {
+                "uri": "[concat('https://abessevhds.blob.core.windows.net/abtfstst01/', parameters('virtualMachines_ABTFSTST01_name'), '-DataDisk02.vhd')]"
+              },
+              "caching": "ReadOnly",
+              "diskSizeGB": 250,
+              "toBeDetached": false
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[parameters('networkInterfaces_ABTFSTST01d3726728_aa77_4ba2_94ba_d95a3e272538_externalid')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "https://ababbelsodiag190.blob.core.windows.net/"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-03-01",
+      "name": "[concat(parameters('virtualMachines_ABTFSTST01_name'), '/BGInfo')]",
+      "location": "westeurope",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_ABTFSTST01_name'))]"
+      ],
+      "properties": {
+        "autoUpgradeMinorVersion": true,
+        "publisher": "Microsoft.Compute",
+        "type": "BGInfo",
+        "typeHandlerVersion": "2.1"
+      }
+    }
+  ]
+}
