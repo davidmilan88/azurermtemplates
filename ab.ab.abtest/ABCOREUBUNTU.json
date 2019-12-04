@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_ABCOREUBUNTU_name": {
+      "type": "String"
+    },
+    "disks_ABCOREUBUNTU_OsDisk_1_7d6fabaca1e340fda34bf8d1cad56904_externalid": {
+      "type": "String"
+    },
+    "networkInterfaces_abcoreubuntu467_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('virtualMachines_ABCOREUBUNTU_name')]",
+      "location": "westeurope",
+      "tags": {
+        "test": "test"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2s"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "18.04-LTS",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Linux",
+            "name": "[concat(parameters('virtualMachines_ABCOREUBUNTU_name'), '_OsDisk_1_7d6fabaca1e340fda34bf8d1cad56904')]",
+            "createOption": "FromImage",
+            "caching": "ReadWrite",
+            "managedDisk": {
+              "id": "[parameters('disks_ABCOREUBUNTU_OsDisk_1_7d6fabaca1e340fda34bf8d1cad56904_externalid')]"
+            }
+          },
+          "dataDisks": []
+        },
+        "osProfile": {
+          "computerName": "[parameters('virtualMachines_ABCOREUBUNTU_name')]",
+          "adminUsername": "abesse",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": false,
+            "provisionVMAgent": true
+          },
+          "secrets": [],
+          "allowExtensionOperations": true
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[parameters('networkInterfaces_abcoreubuntu467_externalid')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "https://abababtestdiag.blob.core.windows.net/"
+          }
+        }
+      }
+    }
+  ]
+}
