@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_ABRDGW_name": {
+      "type": "String"
+    },
+    "networkInterfaces_abrdgw164_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('virtualMachines_ABRDGW_name')]",
+      "location": "westeurope",
+      "tags": {
+        "NoAutoShutdown": "20190501"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ms"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2019-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[parameters('virtualMachines_ABRDGW_name')]",
+            "createOption": "FromImage",
+            "vhd": {
+              "uri": "[concat('https://ababbelsostdr.blob.core.windows.net/vhds/', parameters('virtualMachines_ABRDGW_name'), '20190314170720.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 127
+          },
+          "dataDisks": []
+        },
+        "osProfile": {
+          "computerName": "[parameters('virtualMachines_ABRDGW_name')]",
+          "adminUsername": "abadmin",
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "enableAutomaticUpdates": true
+          },
+          "secrets": [],
+          "allowExtensionOperations": true
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[parameters('networkInterfaces_abrdgw164_externalid')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "https://ababbelsodiag190.blob.core.windows.net/"
+          }
+        }
+      }
+    }
+  ]
+}
