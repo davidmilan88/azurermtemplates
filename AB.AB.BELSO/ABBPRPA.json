@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_ABBPRPA_name": {
+      "type": "String"
+    },
+    "networkInterfaces_abbprpa960_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('virtualMachines_ABBPRPA_name')]",
+      "location": "westeurope",
+      "plan": {
+        "name": "bp_trial_single_vm_small",
+        "product": "blueprism",
+        "publisher": "blueprismlimited-4827145"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2ms"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "blueprismlimited-4827145",
+            "offer": "blueprism",
+            "sku": "bp_trial_single_vm_small",
+            "version": "1.1.1"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[parameters('virtualMachines_ABBPRPA_name')]",
+            "createOption": "FromImage",
+            "vhd": {
+              "uri": "[concat('https://ababbelso.blob.core.windows.net/vhds/', parameters('virtualMachines_ABBPRPA_name'), '20190726094256.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 127
+          },
+          "dataDisks": []
+        },
+        "osProfile": {
+          "computerName": "[parameters('virtualMachines_ABBPRPA_name')]",
+          "adminUsername": "abesseadministrator",
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "enableAutomaticUpdates": true
+          },
+          "secrets": [],
+          "allowExtensionOperations": true
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[parameters('networkInterfaces_abbprpa960_externalid')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "https://ababbelso.blob.core.windows.net/"
+          }
+        }
+      }
+    }
+  ]
+}
