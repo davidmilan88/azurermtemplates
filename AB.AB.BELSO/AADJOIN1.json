@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_AADJOIN1_name": {
+      "type": "String"
+    },
+    "networkInterfaces_aadjoin160_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('virtualMachines_AADJOIN1_name')]",
+      "location": "westeurope",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_B2s"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftVisualStudio",
+            "offer": "Windows",
+            "sku": "Windows-10-N-x64",
+            "version": "latest"
+          },
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[parameters('virtualMachines_AADJOIN1_name')]",
+            "createOption": "FromImage",
+            "vhd": {
+              "uri": "[concat('https://abessevhds.blob.core.windows.net/vhds/', parameters('virtualMachines_AADJOIN1_name'), '20170911225644.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 127
+          },
+          "dataDisks": []
+        },
+        "osProfile": {
+          "computerName": "[parameters('virtualMachines_AADJOIN1_name')]",
+          "adminUsername": "abesse",
+          "windowsConfiguration": {
+            "provisionVMAgent": true,
+            "enableAutomaticUpdates": true
+          },
+          "secrets": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[parameters('networkInterfaces_aadjoin160_externalid')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "https://ababainvdiag.blob.core.windows.net/"
+          }
+        }
+      }
+    }
+  ]
+}
