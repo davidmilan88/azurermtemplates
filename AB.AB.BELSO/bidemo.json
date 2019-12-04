@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachines_bidemo_name": {
+      "type": "String"
+    },
+    "networkInterfaces_bidemoNic_externalid": {
+      "type": "String"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('virtualMachines_bidemo_name')]",
+      "location": "westeurope",
+      "tags": {
+        "NoAutoShutdown": "False",
+        "Description": "Nincs állandó használatban, de néha kell ezért nem archiválható"
+      },
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_A2m_v2"
+        },
+        "storageProfile": {
+          "osDisk": {
+            "osType": "Windows",
+            "name": "[concat(parameters('virtualMachines_bidemo_name'), '-osdisk.vhd')]",
+            "createOption": "Attach",
+            "vhd": {
+              "uri": "[concat('https://abessevhds.blob.core.windows.net/', parameters('virtualMachines_bidemo_name'), '/', parameters('virtualMachines_bidemo_name'), '-osdisk.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "diskSizeGB": 127
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[parameters('networkInterfaces_bidemoNic_externalid')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "https://abessevhds.blob.core.windows.net/"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-03-01",
+      "name": "[concat(parameters('virtualMachines_bidemo_name'), '/BGInfo')]",
+      "location": "westeurope",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('virtualMachines_bidemo_name'))]"
+      ],
+      "properties": {
+        "autoUpgradeMinorVersion": true,
+        "publisher": "Microsoft.Compute",
+        "type": "BGInfo",
+        "typeHandlerVersion": "2.1"
+      }
+    }
+  ]
+}
